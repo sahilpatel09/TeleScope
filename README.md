@@ -5,12 +5,7 @@ Replicating Datadog APM with open source tooling.
 ![Image](./docs/trace_example_screenshot.png)
 
 TODO
-- Update the app to be more autonomously generating data
-- Make a good database data and queries
 - Drill down feature with prometheus metrics of traces
-
-
-
 
 ## Components
 The stack consists of the following components:
