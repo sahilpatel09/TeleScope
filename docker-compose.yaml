@@ -40,18 +40,7 @@ services:
       - prometheus
       - tempo-init
       - tempo
-
-  postgres:
-    image: postgres:15
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=tracedb
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
+  
   otel-collector:
     image: otel/opentelemetry-collector:latest
     command: ["--config=/etc/otel-collector-config.yaml"]
