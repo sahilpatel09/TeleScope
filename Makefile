@@ -6,3 +6,6 @@ down:
 
 build:
 	docker-compose up --build
+
+down-with-volumes:
+	docker-compose down --volumes

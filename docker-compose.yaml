@@ -1,4 +1,30 @@
 services:
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  tempo-init:
+    image: grafana/tempo:2.8.1
+    command: [ "chown", "10001:10001", "/tmp/tempo/data" ]
+    volumes:
+      - tempo-data:/tmp/tempo
+
+  tempo:
+    image: grafana/tempo:2.8.1
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./config/tempo-local.yaml:/etc/tempo.yaml
+      - tempo-data:/tmp/tempo
+    ports:
+      - "9095:9095"
+      - "9091:9091"
+    depends_on:
+      - tempo-init
+    user: "10001"
+
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -8,15 +34,12 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     depends_on:
       - prometheus
-
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
+      - tempo-init
+      - tempo
 
   postgres:
     image: postgres:15
@@ -40,9 +63,12 @@ services:
       - "4318:4318"
     depends_on:
       - postgres
+      - tempo-init
+      - tempo
 
 volumes:
   grafana-storage:
   influxdb-storage:
   postgres-data:
+  tempo-data:
 

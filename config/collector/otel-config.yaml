@@ -9,9 +9,35 @@ receivers:
 exporters:
   prometheus:
     endpoint: "0.0.0.0:1234"
+    namespace: test-space
+    const_labels:
+      label1: value1
+      "another label": spaced value
+    send_timestamps: true
+    metric_expiration: 180m
+    enable_open_metrics: true
+    add_metric_suffixes: false
+    resource_to_telemetry_conversion:
+      enabled: true
+  debug:
+    verbosity: detailed
+  otlp/tempo:
+    endpoint: "tempo:9091"
+    tls:
+      insecure: true
+
+processors:
+  batch:
+    send_batch_size: 8192
+    timeout: 200ms
 
 service:
   pipelines:
     metrics:
       receivers: [otlp]
+      processors: [batch]
       exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo] 
